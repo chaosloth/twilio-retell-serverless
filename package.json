@@ -1,6 +1,6 @@
 {
   "name": "twilio-retell-serverless",
-  "description": "Twilio Serverless function to start Retell agent",
+  "description": "Twilio Serverless function to start Retell.AI agent",
   "author": "Christopher Connolly",
   "version": "0.0.1",
   "private": true,
