@@ -1,0 +1,30 @@
+{
+  "name": "twilio-retell-serverless",
+  "description": "Twilio Serverless function to start Retell agent",
+  "author": "Christopher Connolly",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "test": "tsc --noEmit",
+    "start": "twilio-run --functions-folder dist/functions --assets-folder dist/assets",
+    "deploy": "twilio-run deploy --functions-folder dist/functions --assets-folder dist/assets",
+    "build": "tsc && npm run build:copy-assets",
+    "build:copy-assets": "copyfiles src/assets/* src/assets/**/* --up 2 --exclude **/*.ts dist/assets/",
+    "prestart": "npm run build",
+    "predeploy": "npm run build"
+  },
+  "dependencies": {
+    "@twilio-labs/serverless-runtime-types": "^1.1",
+    "@twilio/runtime-handler": "1.3.0",
+    "retell-sdk": "^3.5.0",
+    "twilio": "^3.56"
+  },
+  "devDependencies": {
+    "copyfiles": "^2.2.0",
+    "twilio-run": "^3.5.4",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": "18"
+  }
+}
