@@ -63,7 +63,7 @@ export const handler: ServerlessFunctionSignature<MyContext, MyEvent> =
         callback(null, response);
       }
     } catch (err) {
-      console.log("Error connecting to Retel;", err);
+      console.error("Error connecting to Retell", err);
       const response = new VoiceResponse();
       response.say("An application exception occurred.");
       callback(null, response);
