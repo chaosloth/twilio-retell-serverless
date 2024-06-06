@@ -40,6 +40,11 @@ RETELL_API_KEY=
 #
 RETELL_AGENT_ID=
 
+#
+# Twilio Application
+#
+TWILIO_APPLICATION_SID=
+
 ```
 
 ## Redirect back to Twilio Studio
