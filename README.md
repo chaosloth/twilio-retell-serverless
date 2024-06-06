@@ -42,3 +42,43 @@ RETELL_AGENT_ID=
 
 ```
 
+## Redirect back to Twilio Studio
+To redirect the call back to Twilio Studio we send the call to a Twilio App
+
+First create the Studio flow and get the Webhook URL. 
+
+Create the app and use this Studio Webhook URL
+
+![Demo Image](/docs/app.png)
+
+## Retell Tool
+Create a tool in RetellAI that calls the redirect URI passing the Application SID as a parameter
+
+The tool definition is like this:
+```json
+{
+  "type": "object",
+  "properties": {
+    "Summary": {
+      "type": "string",
+      "description": "Summary of the conversation so far"
+    }
+  },
+  "required": [
+    "Summary"
+  ]
+}
+```
+![Demo Image](/docs/tool.png)
+
+## Studio
+The studio flow can be configured to take parameters passed into the application from Retell and then use these in Flex
+
+![Demo Image](/docs/studio.png)
+
+![Demo Image](/docs/studio_data.png)
+
+## Flex
+The data (in this case summary) can be shown to the Flex agent
+
+![Demo Image](/docs/flex.png)
