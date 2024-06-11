@@ -12,8 +12,6 @@ import {
 type MyEvent = {
   args: {
     Summary?: string;
-    from_number: string;
-    to_number: string;
   };
   applicationSid?: string;
   call: {
