@@ -40,8 +40,95 @@ RETELL_API_KEY=
 #
 RETELL_AGENT_ID=
 
+#
+# Twilio Segment
+#
+SEGMENT_PROFILES_API_BASE_URL=https://profiles.segment.com/v1
+SEGMENT_API_ACCESS_TOKEN=
+SEGMENT_SPACE_ID=
+SEGMENT_WRITE_KEY=
+
 ```
 
+# Twilio Segment
+Retell bots an take advantage of Twilio Segment CDP integration by looking up customer information, updating customer information and adding data to the customer's profile. 
+
+We can do this by using tools defined in this project. Below are a list of tools to perform the respective action.
+
+
+| Tool            | Path                        | Purpose                                                 |
+| --------------- | --------------------------- | ------------------------------------------------------- |
+| Customer lookup | <your domain>/lookup        | Find the customer's profile base on the incoming number |
+| Update details  | <your domain>/save_customer | Store the customer information against their profile    |
+| Add event       | <your domain>/add_event     | Add a tracking event for this customer                  |
+
+# Tool: Customer lookup
+
+The customer lookup tool doesn't require any tool body as the required data is passed in metadata (assuming that you are using the `/start` function that is also in this project).
+
+
+# Tool: Update details
+
+The update details tool has the following definition, you can adjust as required.
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Name of the customer"
+    },
+    "phone": {
+      "type": "string",
+      "description": "E.164 phone number of the customer"
+    },
+    "address": {
+      "type": "string",
+      "description": "Customer delivery or billing address"
+    }
+  },
+  "required": [
+    "name",
+    "phone"
+  ]
+}
+```
+
+# Tool: Add Event
+
+The add event (place order) tool has the following definition, you can adjust as required.
+
+Note that the tool name (e.g. `place_order`) as defined in Retell is used as the event name.
+
+Additionally, note that you can used this same tool definition again to send events with a difference event name.
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "summary": {
+      "type": "string",
+      "description": "Summary of the pizza order including all items"
+    },
+    "total": {
+      "type": "string",
+      "description": "Total price of the order"
+    },
+    "timestamp": {
+      "type": "string",
+      "description": "String representation of the time of this order"
+    }
+  },
+  "required": [
+    "summary",
+    "total",
+    "timestamp"
+  ]
+}
+```
+
+# Twilio Studio
 ## Redirect back to Twilio Studio
 To redirect the call back to Twilio Studio we send the call to a Twilio App
 
@@ -51,7 +138,7 @@ Create the app and use this Studio Webhook URL
 
 ![Demo Image](/docs/app.png)
 
-## Retell Tool
+## Retell Tools
 Create a tool in RetellAI that calls the redirect URI passing the Application SID as a parameter
 
 The tool definition is like this:
