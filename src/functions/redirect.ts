@@ -51,7 +51,6 @@ export const handler: ServerlessFunctionSignature<MyContext, MyEvent> =
         .calls(callSid)
         .update({
           twiml: `<Response>
-              <Say>Returning you back to the Twilio Application</Say>
               <Dial>
                 <Application copyParentTo="true">
                   <ApplicationSid>${targetApplication}</ApplicationSid>
