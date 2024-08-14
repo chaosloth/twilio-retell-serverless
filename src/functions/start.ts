@@ -51,6 +51,11 @@ export const handler: ServerlessFunctionSignature<MyContext, MyEvent> =
             from_number: event.From,
             to_number: event.To,
           },
+          retell_llm_dynamic_variables: {
+            twilio_call_sid: event.CallSid,
+            from_number: event.From,
+            to_number: event.To,
+          },
         });
       if (callResponse) {
         // Start phone call websocket

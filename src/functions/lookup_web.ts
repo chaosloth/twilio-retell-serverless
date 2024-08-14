@@ -54,9 +54,8 @@ export const handler: ServerlessFunctionSignature<MyContext, MyEvent> =
       const startsWithClient = /^client:/i.test(
         event.call.metadata.from_number
       );
-      const lookup_type = startsWithClient ? "client_id" : "phone";
 
-      const url = `${context.SEGMENT_PROFILES_API_BASE_URL}/spaces/${context.SEGMENT_SPACE_ID}/collections/users/profiles/${lookup_type}:${userId}/traits?limit=200`;
+      const url = `${context.SEGMENT_PROFILES_API_BASE_URL}/spaces/${context.SEGMENT_SPACE_ID}/collections/users/profiles/client_id:${userId}/traits?limit=200`;
       console.log(`Fetching segment traits from: ${url}`);
 
       var options = {
