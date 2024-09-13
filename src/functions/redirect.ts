@@ -11,7 +11,7 @@ import {
 // Adjust as needed, for example "Summary" can be passed through
 type MyEvent = {
   args: {
-    Summary?: string;
+    summary: string;
   };
   applicationSid?: string;
   call: {
@@ -52,7 +52,9 @@ export const handler: ServerlessFunctionSignature<MyContext, MyEvent> =
               <Dial>
                 <Application copyParentTo="true">
                   <ApplicationSid>${targetApplication}</ApplicationSid>
-                  <Parameter name="SUMMARY" value="${event.args.Summary}"/>
+                  <Parameter name="summary" value="${
+                    event.args.summary || ""
+                  }"/>
                 </Application>
               </Dial>
             </Response>`,
