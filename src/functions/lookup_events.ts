@@ -56,8 +56,8 @@ export const handler: ServerlessFunctionSignature<MyContext, MyEvent> =
       );
       const lookup_type = startsWithClient ? "client_id" : "phone";
 
-      const url = `${context.SEGMENT_PROFILES_API_BASE_URL}/spaces/${context.SEGMENT_SPACE_ID}/collections/users/profiles/${lookup_type}:${userId}/traits?limit=200`;
-      console.log(`Fetching segment traits from: ${url}`);
+      const url = `${context.SEGMENT_PROFILES_API_BASE_URL}/spaces/${context.SEGMENT_SPACE_ID}/collections/users/profiles/${lookup_type}:${userId}/events?limit=10`;
+      console.log(`Fetching segment events from: ${url}`);
 
       var options = {
         method: "GET",
@@ -67,23 +67,22 @@ export const handler: ServerlessFunctionSignature<MyContext, MyEvent> =
       };
 
       const result = await fetch(url, options);
-
-      console.log(`Have fetch result`);
       const segmentPayload = await result.json();
 
-      console.log(`Profile`, JSON.stringify(segmentPayload, null, 2));
+      console.log(JSON.stringify(segmentPayload, null, 2));
 
-      // Guard clause
-      if (!segmentPayload || !segmentPayload.hasOwnProperty("traits")) {
-        response.setBody([]);
-        callback(null, response);
-        return;
-      }
+      let events = segmentPayload.data.map((evt: any) => {
+        delete evt.properties.client_id;
+        return {
+          eventName: evt.event,
+          ...evt.properties,
+        };
+      });
 
-      console.log(`Setting body`);
+      console.log(`Events`, events);
       response.appendHeader("Content-Type", "application/json");
-      response.setBody(segmentPayload.traits);
-      // response.setBody(JSON.stringify(segmentPayload.traits));
+      response.setBody(events);
+      // response.setBody(JSON.stringify(events));
 
       return callback(null, response);
     } catch (err: any) {

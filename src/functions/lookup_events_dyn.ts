@@ -12,10 +12,12 @@ const fetch = require("node-fetch");
 
 type MyEvent = {
   call: {
+    retell_llm_dynamic_variables: {
+      from_number: string;
+    };
     metadata: {
       twilio_call_sid: string;
       to_number: string;
-      from_number: string;
     };
   };
 };
@@ -38,7 +40,7 @@ export const handler: ServerlessFunctionSignature<MyContext, MyEvent> =
     console.log(`Incoming Segment Lookup Request >> `, event);
     const response = new Twilio.Response();
     try {
-      if (!event.call.metadata.from_number) {
+      if (!event.call.retell_llm_dynamic_variables.from_number) {
         response.setStatusCode(404);
         response.setBody({ status: "Not found" });
         return callback(null, response);
@@ -49,15 +51,17 @@ export const handler: ServerlessFunctionSignature<MyContext, MyEvent> =
         "utf8"
       ).toString("base64");
 
-      const userId = encodeURIComponent(event.call.metadata.from_number);
+      const userId = encodeURIComponent(
+        event.call.retell_llm_dynamic_variables.from_number
+      );
 
       const startsWithClient = /^client:/i.test(
-        event.call.metadata.from_number
+        event.call.retell_llm_dynamic_variables.from_number
       );
       const lookup_type = startsWithClient ? "client_id" : "phone";
 
-      const url = `${context.SEGMENT_PROFILES_API_BASE_URL}/spaces/${context.SEGMENT_SPACE_ID}/collections/users/profiles/${lookup_type}:${userId}/traits?limit=200`;
-      console.log(`Fetching segment traits from: ${url}`);
+      const url = `${context.SEGMENT_PROFILES_API_BASE_URL}/spaces/${context.SEGMENT_SPACE_ID}/collections/users/profiles/${lookup_type}:${userId}/events?limit=10`;
+      console.log(`Fetching segment events from: ${url}`);
 
       var options = {
         method: "GET",
@@ -67,23 +71,22 @@ export const handler: ServerlessFunctionSignature<MyContext, MyEvent> =
       };
 
       const result = await fetch(url, options);
-
-      console.log(`Have fetch result`);
       const segmentPayload = await result.json();
 
-      console.log(`Profile`, JSON.stringify(segmentPayload, null, 2));
+      console.log(JSON.stringify(segmentPayload, null, 2));
 
-      // Guard clause
-      if (!segmentPayload || !segmentPayload.hasOwnProperty("traits")) {
-        response.setBody([]);
-        callback(null, response);
-        return;
-      }
+      let events = segmentPayload.data.map((evt: any) => {
+        delete evt.properties.client_id;
+        return {
+          eventName: evt.event,
+          ...evt.properties,
+        };
+      });
 
-      console.log(`Setting body`);
+      console.log(`Events`, events);
       response.appendHeader("Content-Type", "application/json");
-      response.setBody(segmentPayload.traits);
-      // response.setBody(JSON.stringify(segmentPayload.traits));
+      response.setBody(events);
+      // response.setBody(JSON.stringify(events));
 
       return callback(null, response);
     } catch (err: any) {

@@ -12,10 +12,12 @@ const fetch = require("node-fetch");
 
 type MyEvent = {
   call: {
+    retell_llm_dynamic_variables: {
+      from_number: string;
+    };
     metadata: {
       twilio_call_sid: string;
       to_number: string;
-      from_number: string;
     };
   };
 };
@@ -38,7 +40,7 @@ export const handler: ServerlessFunctionSignature<MyContext, MyEvent> =
     console.log(`Incoming Segment Lookup Request >> `, event);
     const response = new Twilio.Response();
     try {
-      if (!event.call.metadata.from_number) {
+      if (!event.call.retell_llm_dynamic_variables.from_number) {
         response.setStatusCode(404);
         response.setBody({ status: "Not found" });
         return callback(null, response);
@@ -49,10 +51,12 @@ export const handler: ServerlessFunctionSignature<MyContext, MyEvent> =
         "utf8"
       ).toString("base64");
 
-      const userId = encodeURIComponent(event.call.metadata.from_number);
+      const userId = encodeURIComponent(
+        event.call.retell_llm_dynamic_variables.from_number
+      );
 
       const startsWithClient = /^client:/i.test(
-        event.call.metadata.from_number
+        event.call.retell_llm_dynamic_variables.from_number
       );
       const lookup_type = startsWithClient ? "client_id" : "phone";
 
