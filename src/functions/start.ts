@@ -6,7 +6,6 @@ import {
   ServerlessCallback,
   ServerlessFunctionSignature,
 } from "@twilio-labs/serverless-runtime-types/types";
-import { RegisterCallResponse } from "retell-sdk/resources";
 import VoiceResponse from "twilio/lib/twiml/VoiceResponse";
 import Retell from "retell-sdk";
 
@@ -38,27 +37,31 @@ export const handler: ServerlessFunctionSignature<MyContext, MyEvent> =
         apiKey: context.RETELL_API_KEY,
       });
 
-      const callResponse: RegisterCallResponse =
-        await retellClient.call.register({
-          agent_id: event.agent_id || context.RETELL_AGENT_ID,
-          audio_websocket_protocol: "twilio",
-          audio_encoding: "mulaw",
-          sample_rate: 8000,
+      const phoneCallResponse = await retellClient.call.registerPhoneCall({
+        agent_id: event.agent_id || context.RETELL_AGENT_ID,
+        from_number: event.From,
+        to_number: event.To,
+        // Backwards compatibility with other functions
+        metadata: {
+          twilio_call_sid: event.CallSid,
           from_number: event.From,
           to_number: event.To,
-          metadata: {
-            twilio_call_sid: event.CallSid,
-            from_number: event.From,
-            to_number: event.To,
-          },
-        });
-      if (callResponse) {
+        },
+        // A better way to pass context that can be used in the UI too
+        retell_llm_dynamic_variables: {
+          twilio_call_sid: event.CallSid,
+          from_number: event.From,
+          to_number: event.To,
+        },
+      });
+
+      if (phoneCallResponse) {
         // Start phone call websocket
         const response = new VoiceResponse();
-        const start = response.connect();
-        const stream = start.stream({
-          url: `wss://api.retellai.com/audio-websocket/${callResponse.call_id}`,
-        });
+        const dial = response.dial();
+        dial.sip(
+          `sip:${phoneCallResponse.call_id}@5t4n6j0wnrl.sip.livekit.cloud`
+        );
 
         callback(null, response);
       } else {
