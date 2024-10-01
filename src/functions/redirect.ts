@@ -52,6 +52,9 @@ export const handler: ServerlessFunctionSignature<MyContext, MyEvent> =
               <Dial>
                 <Application copyParentTo="true">
                   <ApplicationSid>${targetApplication}</ApplicationSid>
+                                    <Parameter name="original_call_sid" value="${
+                                      event.call.metadata.twilio_call_sid
+                                    }"/>
                   <Parameter name="summary" value="${
                     event.args.summary || ""
                   }"/>
