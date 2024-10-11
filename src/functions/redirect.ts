@@ -10,6 +10,7 @@ import {
 // This is the meta data coming from RetellAI
 // Adjust as needed, for example "Summary" can be passed through
 type MyEvent = {
+  delay: string;
   args: {
     summary: string;
   };
@@ -38,17 +39,24 @@ export const handler: ServerlessFunctionSignature<MyContext, MyEvent> =
     callback: ServerlessCallback
   ) {
     console.log(`Incoming >> `, event);
+
+    let delay = parseInt(event.delay, 10);
+    if (isNaN(delay)) {
+      delay = 0;
+    }
+
     const response = new Twilio.Response();
     const client = context.getTwilioClient();
     try {
       let targetApplication =
         event.applicationSid || context.TWILIO_APPLICATION_SID;
 
-      const callSid = event.call.metadata.twilio_call_sid;
-      await client
-        .calls(callSid)
-        .update({
-          twiml: `<Response>
+      setTimeout(() => {
+        const callSid = event.call.metadata.twilio_call_sid;
+        client
+          .calls(callSid)
+          .update({
+            twiml: `<Response>
               <Dial>
                 <Application copyParentTo="true">
                   <ApplicationSid>${targetApplication}</ApplicationSid>
@@ -61,10 +69,12 @@ export const handler: ServerlessFunctionSignature<MyContext, MyEvent> =
                 </Application>
               </Dial>
             </Response>`,
-        })
-        .catch((err) => console.log("Error updating call", err));
-
-      callback(null, response);
+          })
+          .catch((err) => console.log("Error updating call", err))
+          .finally(() => {
+            return callback(null, response);
+          });
+      }, delay);
     } catch (err) {
       console.error("Error redirecting call from retell", err);
       response.setBody({ status: "Error" });
